@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using GamesAPI.Services;
 
 
 namespace GamesAPI.Controllers
@@ -11,100 +12,63 @@ namespace GamesAPI.Controllers
     [ApiController]
     public class GameLibrariesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public GameLibrariesController(AppDbContext context)
+        private readonly IGameLibraryService _gameLibraryService;
+        public GameLibrariesController(IGameLibraryService gameLibraryService)
         {
-            _context = context;
+            _gameLibraryService = gameLibraryService;
         }
 
         [HttpPost]
-        public IActionResult CreateGameLibraryRequest([FromBody] CreateGameLibraryRequest request)
+        public ActionResult<GameLibraryResponse> CreateGameLibraryRequest([FromBody] CreateGameLibraryRequest request)
         {
-            var newGameLibrary = new GameLibrary
-            {
-                IsFavourite = request.IsFavourite,
-                HoursPlayed = request.HoursPlayed,
-                GameId = request.GameId,
-                LibraryId = request.LibraryId
-            };
+            var response = _gameLibraryService.CreateGameLibrary(request);
 
-            _context.GameLibraries.Add(newGameLibrary);
-            _context.SaveChanges();
-
-            var response = new GameLibraryResponse
-            (
-                newGameLibrary.IsFavourite,
-                newGameLibrary.HoursPlayed,
-                newGameLibrary.GameId,
-                newGameLibrary.LibraryId
-            );
-
-            return CreatedAtAction(nameof(GetGameLibraryById), new { gameId = newGameLibrary.GameId, libraryId = newGameLibrary.LibraryId }, response);
+            return CreatedAtAction(nameof(GetGameLibraryById), new { gameId = response.GameId, libraryId = response.LibraryId }, response);
         }
 
         [HttpGet]
-        public IActionResult GetGameLibraries()
+        public ActionResult<GameLibraryResponse> GetGameLibraries()
         {
-            var responseList = _context.GameLibraries.Select(gl => new GameLibraryResponse(
-                    gl.IsFavourite,
-                    gl.HoursPlayed,
-                    gl.GameId,
-                    gl.LibraryId
-                )).ToList();
+            var responseList = _gameLibraryService.GetGameLibraries();
 
             return Ok(responseList);
         }
 
         [HttpGet("{gameId}/{libraryId}", Name = "GetGameLibraryById")]
-        public IActionResult GetGameLibraryById(int gameId, int libraryId)
+        public ActionResult<GameLibraryResponse> GetGameLibraryById(int gameId, int libraryId)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
-
+            var gameLibrary = _gameLibraryService.GetGameLibraryById(gameId, libraryId);
             if (gameLibrary == null)
             {
-                return NotFound();
+                return NotFound();            
             }
 
-            var response = new GameLibraryResponse
-            (
-                gameLibrary.IsFavourite,
-                gameLibrary.HoursPlayed,
-                gameLibrary.GameId,
-                gameLibrary.LibraryId
-            );
 
-            return Ok(response);
+            return Ok(gameLibrary);
         }
 
         [HttpPut("{gameId}/{libraryId}")]
-        public IActionResult UpdateGameLibrary(int gameId, int libraryId, [FromBody] UpdateGameLibraryRequest request)
+        public ActionResult<GameLibraryResponse> UpdateGameLibrary(int gameId, int libraryId, [FromBody] UpdateGameLibraryRequest request)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
+            var gameLibrary = _gameLibraryService.UpdateGameLibrary(gameId, libraryId, request);
 
             if (gameLibrary == null)
             {
                 return NotFound();
             }
-
-            gameLibrary.IsFavourite = request.IsFavourite;
-            gameLibrary.HoursPlayed = request.HoursPlayed;
-
-            _context.SaveChanges();
 
             return NoContent();
         }
+
         [HttpDelete("{gameId}/{libraryId}")]
-        public IActionResult DeleteGameLibrary(int gameId, int libraryId)
+        public ActionResult<GameLibraryResponse> DeleteGameLibrary(int gameId, int libraryId)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
+            var gameLibrary = _gameLibraryService.DeleteGameLibrary(gameId, libraryId);
 
             if (gameLibrary == null)
             {
                 return NotFound();
             }
-
-            _context.GameLibraries.Remove(gameLibrary);
-            _context.SaveChanges();
 
             return NoContent();
         }
