@@ -1,5 +1,4 @@
 ﻿
-using System.ComponentModel.DataAnnotations;
 using GamesAPI.Models.Enums;
 
 namespace GamesAPI.Models
@@ -7,12 +6,9 @@ namespace GamesAPI.Models
     public class Game
     {
         public int Id { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-        [Required]
-        public string Publisher { get; set; }
-
+        public string Name { get; set; } = string.Empty;
+        public string Publisher { get; set; } = string.Empty;
+        public decimal Price { get; set; }
         public DateOnly ReleaseDate { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
