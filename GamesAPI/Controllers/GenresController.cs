@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using GamesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,95 +11,66 @@ namespace GamesAPI.Controllers
     [ApiController]
     public class GenresController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IGenreService _genreService;
 
-        public GenresController(AppDbContext context)
+        public GenresController(IGenreService genreService)
         {
-            _context = context;
+            _genreService = genreService;
         }
 
         [HttpPost]
-        public IActionResult CreateGenreRequest([FromBody] CreateGenreRequest request)
+        public ActionResult<GenreResponse> CreateGenreRequest([FromBody] CreateGenreRequest request)
         {
-            var newGenre = new Genre
-            {
-                Name = request.Name
-            };
 
-            _context.Genres.Add(newGenre);
-            _context.SaveChanges();
+            var response = _genreService.CreateGenre(request);
 
-            var response = new GenreResponse
-            (
-                newGenre.Id,
-                newGenre.Name
-            );
-
-            return CreatedAtAction(nameof(GetGenreById), new { id = newGenre.Id }, response);
+            return CreatedAtAction(nameof(GetGenreById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public IActionResult GetGenres()
+        public ActionResult<IEnumerable<GenreResponse>> GetGenres()
         {
-            var responseList = _context.Genres.Select(g => new GenreResponse
-            (
-                g.Id,
-                g.Name
-            )).ToList();
-            return Ok(responseList);
+            var genres = _genreService.GetGenres();
+            return Ok(genres);
         }
 
         [HttpGet("{id}", Name = "GetGenreById")]
-        public IActionResult GetGenreById(int id)
+        public ActionResult<GenreResponse> GetGenreById(int id)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
+            var genre = _genreService.GetGenreById(id);
 
             if (genre == null)
             {
                 return NotFound();
             }
 
-            var response = new GenreResponse
-            (
-                genre.Id,
-                genre.Name
-            );
 
-            return Ok(response);
+            return Ok(genre);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateGenre(int id, [FromBody] UpdateGenreRequest request)
+        public ActionResult<GenreResponse> UpdateGenre(int id, [FromBody] UpdateGenreRequest request)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
+            var response = _genreService.UpdateGenre(id, request);
 
-            if (genre == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            genre.Name = request.Name ?? genre.Name;
-            _context.SaveChanges();
-
-            var response = new GenreResponse
-            (
-                genre.Id,
-                genre.Name
-            );
-
-            return Ok(response);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteGenre(int id)
+        public ActionResult<GenreResponse> DeleteGenre(int id)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
-            if (genre == null)
+            var response = _genreService.DeleteGenre(id);
+
+            if (response == null)
             {
                 return NotFound();
             }
-            _context.Genres.Remove(genre);
-            _context.SaveChanges();
+
             return NoContent();
         }
     }
