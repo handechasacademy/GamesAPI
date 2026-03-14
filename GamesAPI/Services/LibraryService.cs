@@ -2,15 +2,18 @@
 using GamesAPI.DTOs;
 using GamesAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace GamesAPI.Services
 {
     public class LibraryService : ILibraryService
     {
         private readonly AppDbContext _context;
-        public LibraryService(AppDbContext context)
+        private readonly HybridCache _cache;
+        public LibraryService(AppDbContext context, HybridCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<LibraryResponse>> GetLibrariesAsync()
@@ -28,8 +31,16 @@ namespace GamesAPI.Services
 
         public async Task<LibraryResponse?> GetLibraryByIdAsync(int id)
         {
-            await Task.Delay(20);
-            var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
+            var cacheKey = $"library_{id}";
+
+            var library = await _cache.GetOrCreateAsync(
+                cacheKey,
+                async cancel =>
+                {
+                    await Task.Delay(200, cancel);
+                    return await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
+                }
+                );
 
             if (library == null) return null;
 
@@ -75,7 +86,9 @@ namespace GamesAPI.Services
             library.Description = !string.IsNullOrEmpty(request.Description) ? request.Description : library.Description;
             library.UpdatedAt = DateTime.UtcNow;
 
+            await _cache.RemoveAsync($"library_{id}");
             await _context.SaveChangesAsync();
+            
 
             return true;
         }
@@ -87,6 +100,7 @@ namespace GamesAPI.Services
             if (library == null) return false;
 
             _context.Libraries.Remove(library);
+            await _cache.RemoveAsync($"library_{id}");
             await _context.SaveChangesAsync();
 
             return true;

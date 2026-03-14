@@ -2,17 +2,20 @@
 using GamesAPI.Models.Enums;
 using GamesAPI.DTOs;
 using GamesAPI.Data;
-using Microsoft.EntityFrameworkCore;    
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace GamesAPI.Services
 {
     public class GameService : IGameService
     {
         private readonly AppDbContext _context;
+        private readonly HybridCache _cache;
 
-        public GameService(AppDbContext context)
+        public GameService(AppDbContext context, HybridCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<GameResponse>> GetGamesAsync()
@@ -35,8 +38,16 @@ namespace GamesAPI.Services
 
         public async Task<GameResponse?> GetGameByIdAsync(int id)
         {
-            await Task.Delay(50);
-            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
+            var cacheKey = $"game_{id}";
+
+            var game = await _cache.GetOrCreateAsync(
+                cacheKey,
+                async cancel =>
+                {
+                    await Task.Delay(500, cancel);
+                    return await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
+                }
+                );           
 
             if (game == null) return null;
 
@@ -104,6 +115,7 @@ namespace GamesAPI.Services
             game.GenreId = request.GenreId != default ? request.GenreId : game.GenreId;
             game.UpdatedAt = DateTime.UtcNow;
 
+            await _cache.RemoveAsync($"game_{id}");
             await _context.SaveChangesAsync();
 
             return true;
@@ -117,6 +129,7 @@ namespace GamesAPI.Services
             if (game == null) return false;
 
             _context.Games.Remove(game);
+            await _cache.RemoveAsync($"game_{id}");
             await _context.SaveChangesAsync();
 
             return true;
