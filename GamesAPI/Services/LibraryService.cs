@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Services
 {
@@ -12,21 +13,23 @@ namespace GamesAPI.Services
             _context = context;
         }
 
-        public IEnumerable<LibraryResponse> GetLibraries()
+        public async Task<IEnumerable<LibraryResponse>> GetLibrariesAsync()
         {
-            return _context.Libraries.Select(l => new LibraryResponse
+            await Task.Delay(20);
+            return await _context.Libraries.Select(l => new LibraryResponse
             (
                 l.Id,
                 l.Name,
                 l.Description,
                 l.CreatedAt,
                 l.UpdatedAt
-            )).ToList();
+            )).ToListAsync();
         }
 
-        public LibraryResponse? GetLibraryById(int id)
+        public async Task<LibraryResponse?> GetLibraryByIdAsync(int id)
         {
-            var library = _context.Libraries.FirstOrDefault(l => l.Id == id);
+            await Task.Delay(20);
+            var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
 
             if (library == null) return null;
 
@@ -40,8 +43,9 @@ namespace GamesAPI.Services
             );
         }
 
-        public LibraryResponse CreateLibrary(CreateLibraryRequest request)
+        public async Task<LibraryResponse> CreateLibraryAsync(CreateLibraryRequest request)
         {
+            await Task.Delay(20);
             var newLibrary = new Library
             {
                 Name = request.Name,
@@ -49,7 +53,7 @@ namespace GamesAPI.Services
             };
 
             _context.Libraries.Add(newLibrary);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new LibraryResponse
             (
@@ -60,44 +64,32 @@ namespace GamesAPI.Services
                 newLibrary.UpdatedAt
             );
         }
-        public LibraryResponse? UpdateLibrary(int id, UpdateLibraryRequest request)
+        public async Task<bool> UpdateLibraryAsync(int id, UpdateLibraryRequest request)
         {
-            var library = _context.Libraries.FirstOrDefault(l => l.Id == id);
+            await Task.Delay(20);
+            var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
 
-            if (library == null) return null;
+            if (library == null) return false;
 
             library.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : library.Name;
             library.Description = !string.IsNullOrEmpty(request.Description) ? request.Description : library.Description;
             library.UpdatedAt = DateTime.UtcNow;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new LibraryResponse
-            (
-                library.Id,
-                library.Name,
-                library.Description,
-                library.CreatedAt,
-                library.UpdatedAt
-            );
+            return true;
         }
-        public LibraryResponse? DeleteLibrary(int id)
+        public async Task<bool> DeleteLibraryAsync(int id)
         {
-            var library = _context.Libraries.FirstOrDefault(l => l.Id == id);
+            await Task.Delay(20);
+            var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
 
-            if (library == null) return null;
+            if (library == null) return false;
 
             _context.Libraries.Remove(library);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new LibraryResponse
-            (
-                library.Id,
-                library.Name,
-                library.Description,
-                library.CreatedAt,
-                library.UpdatedAt
-            );
+            return true;
         }
     }
 }

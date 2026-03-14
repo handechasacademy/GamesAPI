@@ -19,25 +19,25 @@ namespace GamesAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<GenreResponse> CreateGenreRequest([FromBody] CreateGenreRequest request)
+        public async Task<ActionResult<GenreResponse>> CreateGenreRequest([FromBody] CreateGenreRequest request)
         {
 
-            var response = _genreService.CreateGenre(request);
+            var response = await _genreService.CreateGenreAsync(request);
 
             return CreatedAtAction(nameof(GetGenreById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<GenreResponse>> GetGenres()
+        public async Task<ActionResult<IEnumerable<GenreResponse>>> GetGenres()
         {
-            var genres = _genreService.GetGenres();
+            var genres = await _genreService.GetGenresAsync();
             return Ok(genres);
         }
 
         [HttpGet("{id}", Name = "GetGenreById")]
-        public ActionResult<GenreResponse> GetGenreById(int id)
+        public async Task<ActionResult<GenreResponse>> GetGenreById(int id)
         {
-            var genre = _genreService.GetGenreById(id);
+            var genre = await _genreService.GetGenreByIdAsync(id);
 
             if (genre == null)
             {
@@ -49,11 +49,11 @@ namespace GamesAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<GenreResponse> UpdateGenre(int id, [FromBody] UpdateGenreRequest request)
+        public async Task<ActionResult<GenreResponse>> UpdateGenre(int id, [FromBody] UpdateGenreRequest request)
         {
-            var response = _genreService.UpdateGenre(id, request);
+            var response = await _genreService.UpdateGenreAsync(id, request);
 
-            if (response == null)
+            if (response == false)
             {
                 return NotFound();
             }
@@ -62,11 +62,11 @@ namespace GamesAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<GenreResponse> DeleteGenre(int id)
+        public async Task<ActionResult<GenreResponse>> DeleteGenre(int id)
         {
-            var response = _genreService.DeleteGenre(id);
+            var response = await _genreService.DeleteGenreAsync(id);
 
-            if (response == null)
+            if (response == false)
             {
                 return NotFound();
             }

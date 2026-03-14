@@ -4,10 +4,10 @@ namespace GamesAPI.Services
 {
     public interface IGenreService
     {
-        IEnumerable<GenreResponse> GetGenres();
-        GenreResponse? GetGenreById(int id);
-        GenreResponse CreateGenre(CreateGenreRequest request);
-        GenreResponse? UpdateGenre(int id, UpdateGenreRequest request);
-        GenreResponse? DeleteGenre(int id);
+        Task<IEnumerable<GenreResponse>> GetGenresAsync();
+        Task<GenreResponse?> GetGenreByIdAsync(int id);
+        Task<GenreResponse> CreateGenreAsync(CreateGenreRequest request);
+        Task<bool> UpdateGenreAsync(int id, UpdateGenreRequest request);
+        Task<bool> DeleteGenreAsync(int id);
     }
 }

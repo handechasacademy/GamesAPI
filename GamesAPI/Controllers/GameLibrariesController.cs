@@ -19,25 +19,25 @@ namespace GamesAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<GameLibraryResponse> CreateGameLibraryRequest([FromBody] CreateGameLibraryRequest request)
+        public async Task<ActionResult<GameLibraryResponse>> CreateGameLibraryRequest([FromBody] CreateGameLibraryRequest request)
         {
-            var response = _gameLibraryService.CreateGameLibrary(request);
+            var response = await _gameLibraryService.CreateGameLibraryAsync(request);
 
             return CreatedAtAction(nameof(GetGameLibraryById), new { gameId = response.GameId, libraryId = response.LibraryId }, response);
         }
 
         [HttpGet]
-        public ActionResult<GameLibraryResponse> GetGameLibraries()
+        public async Task<ActionResult<GameLibraryResponse>> GetGameLibraries()
         {
-            var responseList = _gameLibraryService.GetGameLibraries();
+            var responseList = await _gameLibraryService.GetGameLibrariesAsync();
 
             return Ok(responseList);
         }
 
         [HttpGet("{gameId}/{libraryId}", Name = "GetGameLibraryById")]
-        public ActionResult<GameLibraryResponse> GetGameLibraryById(int gameId, int libraryId)
+        public async Task<ActionResult<GameLibraryResponse>> GetGameLibraryById(int gameId, int libraryId)
         {
-            var gameLibrary = _gameLibraryService.GetGameLibraryById(gameId, libraryId);
+            var gameLibrary = await _gameLibraryService.GetGameLibraryByIdAsync(gameId, libraryId);
             if (gameLibrary == null)
             {
                 return NotFound();            
@@ -48,11 +48,11 @@ namespace GamesAPI.Controllers
         }
 
         [HttpPut("{gameId}/{libraryId}")]
-        public ActionResult<GameLibraryResponse> UpdateGameLibrary(int gameId, int libraryId, [FromBody] UpdateGameLibraryRequest request)
+        public async Task<ActionResult<GameLibraryResponse>> UpdateGameLibrary(int gameId, int libraryId, [FromBody] UpdateGameLibraryRequest request)
         {
-            var gameLibrary = _gameLibraryService.UpdateGameLibrary(gameId, libraryId, request);
+            var gameLibrary = await _gameLibraryService.UpdateGameLibraryAsync(gameId, libraryId, request);
 
-            if (gameLibrary == null)
+            if (gameLibrary == false)
             {
                 return NotFound();
             }
@@ -61,11 +61,11 @@ namespace GamesAPI.Controllers
         }
 
         [HttpDelete("{gameId}/{libraryId}")]
-        public ActionResult<GameLibraryResponse> DeleteGameLibrary(int gameId, int libraryId)
+        public async Task<ActionResult<GameLibraryResponse>> DeleteGameLibrary(int gameId, int libraryId)
         {
-            var gameLibrary = _gameLibraryService.DeleteGameLibrary(gameId, libraryId);
+            var gameLibrary = await _gameLibraryService.DeleteGameLibraryAsync(gameId, libraryId);
 
-            if (gameLibrary == null)
+            if (gameLibrary == false)
             {
                 return NotFound();
             }

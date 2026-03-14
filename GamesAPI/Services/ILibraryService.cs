@@ -4,11 +4,11 @@ namespace GamesAPI.Services
 {
     public interface ILibraryService
     {
-        IEnumerable<LibraryResponse> GetLibraries();
-        LibraryResponse? GetLibraryById(int id);
-        LibraryResponse? CreateLibrary(CreateLibraryRequest request);
-        LibraryResponse? UpdateLibrary(int id, UpdateLibraryRequest request);
-        LibraryResponse? DeleteLibrary(int id);
+        Task<IEnumerable<LibraryResponse>> GetLibrariesAsync();
+        Task<LibraryResponse?> GetLibraryByIdAsync(int id);
+        Task<LibraryResponse?> CreateLibraryAsync(CreateLibraryRequest request);
+        Task<bool> UpdateLibraryAsync(int id, UpdateLibraryRequest request);
+        Task<bool> DeleteLibraryAsync(int id);
 
     }
 }

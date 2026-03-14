@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Services
 {
@@ -12,18 +13,20 @@ namespace GamesAPI.Services
             _context = context;
         }
 
-        public IEnumerable<GenreResponse> GetGenres()
+        public async Task<IEnumerable<GenreResponse>> GetGenresAsync()
         {
-            return _context.Genres.Select(g => new GenreResponse
+            await Task.Delay(20);
+            return await _context.Genres.Select(g => new GenreResponse
             (
                 g.Id,
                 g.Name
-            )).ToList();
+            )).ToListAsync();
         }
 
-        public GenreResponse? GetGenreById(int id)
+        public async Task<GenreResponse?> GetGenreByIdAsync(int id)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
+            await Task.Delay(20);
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
             if (genre == null) return null;
 
@@ -34,15 +37,16 @@ namespace GamesAPI.Services
             );
         }
 
-        public GenreResponse CreateGenre(CreateGenreRequest request)
+        public async Task<GenreResponse> CreateGenreAsync(CreateGenreRequest request)
         {
+            await Task.Delay(20);
             var newGenre = new Genre
             {
                 Name = request.Name
             };
 
             _context.Genres.Add(newGenre);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new GenreResponse
             (
@@ -51,37 +55,29 @@ namespace GamesAPI.Services
             );
         }
 
-        public GenreResponse? UpdateGenre(int id, UpdateGenreRequest request)
+        public async Task<bool> UpdateGenreAsync(int id, UpdateGenreRequest request)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (genre == null) return null;
+            if (genre == null) return false;
 
             genre.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : genre.Name;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GenreResponse
-            (
-                genre.Id,
-                genre.Name
-            );
+            return true;
         }
 
-        public GenreResponse? DeleteGenre(int id)
+        public async Task<bool> DeleteGenreAsync(int id)
         {
-            var genre = _context.Genres.FirstOrDefault(g => g.Id == id);
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (genre == null) return null;
+            if (genre == null) return false;
 
             _context.Genres.Remove(genre);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GenreResponse
-            (
-                genre.Id,
-                genre.Name
-            );
+            return true;
         }
 
 

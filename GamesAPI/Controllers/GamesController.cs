@@ -15,26 +15,26 @@ namespace GamesAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<GameResponse> CreateGame([FromBody] CreateGameRequest request)
+        public async Task<ActionResult<GameResponse>> CreateGame([FromBody] CreateGameRequest request)
         {
 
-            var response = _gameService.CreateGame(request);
+            var response = await _gameService.CreateGameAsync(request);
 
             return CreatedAtAction(nameof(GetGameById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<GameResponse>> GetGames()
+        public async Task<ActionResult<IEnumerable<GameResponse>>> GetGames()
         {
-            var games = _gameService.GetGames();
+            var games = await _gameService.GetGamesAsync();
 
             return Ok(games);
         }
 
         [HttpGet("{id}", Name = "GetGameById")]
-        public ActionResult<GameResponse> GetGameById(int id)
+        public async Task<ActionResult<GameResponse>> GetGameById(int id)
         {
-            var response = _gameService.GetGameById(id);
+            var response = await _gameService.GetGameByIdAsync(id);
 
             if (response == null)
             {
@@ -46,11 +46,11 @@ namespace GamesAPI.Controllers
 
         [HttpPut("{id}")]
 
-        public ActionResult<GameResponse> UpdateGame(int id, [FromBody] UpdateGameRequest request)
+        public async Task<ActionResult<GameResponse>> UpdateGame(int id, [FromBody] UpdateGameRequest request)
         {
-            var response = _gameService.UpdateGame(id, request);
+            var response = await _gameService.UpdateGameAsync(id, request);
 
-            if (response == null)
+            if (response == false)
             {
                 return NotFound();
             }
@@ -60,11 +60,11 @@ namespace GamesAPI.Controllers
 
         [HttpDelete("{id}")]
 
-        public ActionResult<GameResponse> DeleteGame(int id)
+        public async Task<ActionResult<GameResponse>> DeleteGame(int id)
         {
-            var response = _gameService.DeleteGame(id);
+            var response = await _gameService.DeleteGameAsync(id);
 
-            if (response == null)
+            if (response == false)
             {
                 return NotFound();
             }
