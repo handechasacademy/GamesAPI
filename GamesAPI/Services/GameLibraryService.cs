@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using GamesAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,7 +59,10 @@ namespace GamesAPI.Services
         {
             var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
-            if (gameLibrary == null) return null;
+            if (gameLibrary == null)
+            {
+                throw new NotFoundException($"GameLibrary with GameId {gameId} and LibraryId {libraryId} not found.");
+            }
 
             await Task.Delay(20);
             return new GameLibraryResponse
@@ -73,6 +77,14 @@ namespace GamesAPI.Services
         public async Task<GameLibraryResponse> CreateGameLibraryAsync(CreateGameLibraryRequest request)
         {
             await Task.Delay(20);
+            var exists = await _context.GameLibraries
+                            .AnyAsync(gl => gl.GameId == request.GameId && gl.LibraryId == request.LibraryId);
+
+            if (exists)
+            {
+                throw new BadRequestException($"Game {request.GameId} is already in library {request.LibraryId}.");
+            }
+
             var gameLibrary = new GameLibrary
             {
                 IsFavourite = request.IsFavourite,
@@ -97,7 +109,10 @@ namespace GamesAPI.Services
         {
             var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
-            if (gameLibrary == null) return false;
+            if (gameLibrary == null)
+            {
+                throw new NotFoundException($"GameLibrary with GameId {gameId} and LibraryId {libraryId} not found.");
+            }
 
             gameLibrary.IsFavourite = request.IsFavourite;
             gameLibrary.HoursPlayed = request.HoursPlayed;
@@ -113,7 +128,10 @@ namespace GamesAPI.Services
         {
             var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
-            if (gameLibrary == null) return false;
+            if (gameLibrary == null)
+            {
+                throw new NotFoundException($"GameLibrary with GameId {gameId} and LibraryId {libraryId} not found.");
+            }
 
             _context.GameLibraries.Remove(gameLibrary);
             await _context.SaveChangesAsync();

@@ -49,11 +49,6 @@ namespace GamesAPI.Controllers
         public async Task<ActionResult<GameLibraryResponse>> GetGameLibraryById(int gameId, int libraryId)
         {
             var gameLibrary = await _gameLibraryService.GetGameLibraryByIdAsync(gameId, libraryId);
-            if (gameLibrary == null)
-            {
-                return NotFound();            
-            }
-
 
             return Ok(gameLibrary);
         }
@@ -63,11 +58,6 @@ namespace GamesAPI.Controllers
         {
             var gameLibrary = await _gameLibraryService.UpdateGameLibraryAsync(gameId, libraryId, request);
 
-            if (gameLibrary == false)
-            {
-                return NotFound();
-            }
-
             return NoContent();
         }
 
@@ -75,11 +65,6 @@ namespace GamesAPI.Controllers
         public async Task<ActionResult<GameLibraryResponse>> DeleteGameLibrary(int gameId, int libraryId)
         {
             var gameLibrary = await _gameLibraryService.DeleteGameLibraryAsync(gameId, libraryId);
-
-            if (gameLibrary == false)
-            {
-                return NotFound();
-            }
 
             return NoContent();
         }

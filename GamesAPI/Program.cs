@@ -1,4 +1,5 @@
 using  GamesAPI.Data;
+using GamesAPI.Exceptions;
 using GamesAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,12 @@ builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 
-builder.Services.AddProblemDetails();
+builder.Services.AddProblemDetails(options => {
+    options.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Instance = context.HttpContext.Request.Path;
+    };
+});
 
 #pragma warning disable EXTEXP0018
 builder.Services.AddHybridCache();
@@ -25,7 +31,39 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(exceptionApp =>
+{
+    exceptionApp.Run(async context =>
+    {
+        var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+
+        var problemDetails = exception switch
+        {
+            NotFoundException ex => new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Status = 404,
+                Title = "Not Found",
+                Detail = ex.Message
+            },
+            BadRequestException ex => new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Status = 400,
+                Title = "Bad Request",
+                Detail = ex.Message
+            },
+            _ => new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Status = 500,
+                Title = "Internal Server Error",
+                Detail = "Ett oväntat fel inträffade. Försök igen senare."
+            }
+        };
+
+        context.Response.StatusCode = problemDetails.Status ?? 500;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(problemDetails);
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {

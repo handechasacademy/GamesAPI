@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using GamesAPI.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 
@@ -66,7 +67,10 @@ namespace GamesAPI.Services
                 }
                 );
 
-            if (library == null) return null;
+            if (library == null)
+            { 
+                throw new NotFoundException($"Library with ID {id} not found.");
+            }
 
             return new LibraryResponse
             (
@@ -104,7 +108,10 @@ namespace GamesAPI.Services
             await Task.Delay(20);
             var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
 
-            if (library == null) return false;
+            if (library == null)
+            {
+                throw new NotFoundException($"Library with ID {id} not found.");
+            }
 
             library.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : library.Name;
             library.Description = !string.IsNullOrEmpty(request.Description) ? request.Description : library.Description;
@@ -121,7 +128,10 @@ namespace GamesAPI.Services
             await Task.Delay(20);
             var library = await _context.Libraries.FirstOrDefaultAsync(l => l.Id == id);
 
-            if (library == null) return false;
+            if (library == null)
+            {
+                throw new NotFoundException($"Library with ID {id} not found.");
+            }
 
             _context.Libraries.Remove(library);
             await _cache.RemoveAsync($"library_{id}");
