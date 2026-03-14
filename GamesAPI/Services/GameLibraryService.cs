@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Services
@@ -23,6 +24,34 @@ namespace GamesAPI.Services
                 gl.GameId,
                 gl.LibraryId
             )).ToListAsync();
+        }
+
+        public async Task<PagedResponse<GameLibraryResponse>> GetPagedGameLibrariesAsync(int page, int pageSize, GameLibraryFilter filter)
+        {
+            await Task.Delay(20);
+
+            var query = _context.GameLibraries.AsQueryable();
+            if (filter.IsFavourite.HasValue)
+            {
+                query = query.Where(gl => gl.IsFavourite == filter.IsFavourite.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(gl => new GameLibraryResponse
+                (
+                    gl.IsFavourite,
+                    gl.HoursPlayed,
+                    gl.GameId,
+                    gl.LibraryId
+                )).ToListAsync();
+
+            var meta = new PaginationMeta(page, pageSize, totalPages, totalCount, page < totalPages, page > 1);
+            return new PagedResponse<GameLibraryResponse>(items, meta);
         }
 
         public async Task<GameLibraryResponse?> GetGameLibraryByIdAsync(int gameId, int libraryId)

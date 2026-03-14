@@ -23,6 +23,28 @@ namespace GamesAPI.Services
             )).ToListAsync();
         }
 
+        public async Task<PagedResponse<GenreResponse>> GetPagedGenresAsync(int page, int pageSize)
+        {
+            await Task.Delay(20);
+
+            var totalCount = await _context.Genres.CountAsync();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Genres
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(g => new GenreResponse
+                (
+                    g.Id,
+                    g.Name
+                )).ToListAsync();
+
+            var meta = new PaginationMeta(page, pageSize, totalPages, totalCount, page < totalPages, page > 1);
+
+            return new PagedResponse<GenreResponse>(items, meta);
+        }
+
         public async Task<GenreResponse?> GetGenreByIdAsync(int id)
         {
             await Task.Delay(20);

@@ -34,6 +34,16 @@ namespace GamesAPI.Controllers
             return Ok(genres);
         }
 
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResponse<GenreResponse>>> GetPagedGenres(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            var response = await _genreService.GetPagedGenresAsync(page, pageSize);
+            return Ok(response);
+        }
+
         [HttpGet("{id}", Name = "GetGenreById")]
         public async Task<ActionResult<GenreResponse>> GetGenreById(int id)
         {

@@ -34,6 +34,17 @@ namespace GamesAPI.Controllers
             return Ok(responseList);
         }
 
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResponse<GameLibraryResponse>>> GetPagedGameLibraries(
+            [AsParameters] GameLibraryFilter filter,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            var response = await _gameLibraryService.GetPagedGameLibrariesAsync(page, pageSize, filter);
+            return Ok(response);
+        }
+
         [HttpGet("{gameId}/{libraryId}", Name = "GetGameLibraryById")]
         public async Task<ActionResult<GameLibraryResponse>> GetGameLibraryById(int gameId, int libraryId)
         {
