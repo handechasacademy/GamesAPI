@@ -14,10 +14,18 @@ builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 
+builder.Services.AddProblemDetails();
+
+#pragma warning disable EXTEXP0018
+builder.Services.AddHybridCache();
+#pragma warning restore EXTEXP0018
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
