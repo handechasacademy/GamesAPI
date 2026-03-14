@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Services
 {
@@ -12,23 +13,25 @@ namespace GamesAPI.Services
             _context = context;
         }
 
-        public IEnumerable<GameLibraryResponse> GetGameLibraries()
+        public async Task<IEnumerable<GameLibraryResponse>> GetGameLibrariesAsync()
         {
-            return _context.GameLibraries.Select(gl => new GameLibraryResponse
+            await Task.Delay(20);
+            return await _context.GameLibraries.Select(gl => new GameLibraryResponse
             (
                 gl.IsFavourite,
                 gl.HoursPlayed,
                 gl.GameId,
                 gl.LibraryId
-            )).ToList();
+            )).ToListAsync();
         }
 
-        public GameLibraryResponse GetGameLibraryById(int gameId, int libraryId)
+        public async Task<GameLibraryResponse?> GetGameLibraryByIdAsync(int gameId, int libraryId)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
+            var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
             if (gameLibrary == null) return null;
 
+            await Task.Delay(20);
             return new GameLibraryResponse
             (
                 gameLibrary.IsFavourite,
@@ -38,8 +41,9 @@ namespace GamesAPI.Services
             );
         }
 
-        public GameLibraryResponse CreateGameLibrary(CreateGameLibraryRequest request)
+        public async Task<GameLibraryResponse> CreateGameLibraryAsync(CreateGameLibraryRequest request)
         {
+            await Task.Delay(20);
             var gameLibrary = new GameLibrary
             {
                 IsFavourite = request.IsFavourite,
@@ -49,7 +53,7 @@ namespace GamesAPI.Services
             };
 
             _context.GameLibraries.Add(gameLibrary);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new GameLibraryResponse
             (
@@ -60,44 +64,32 @@ namespace GamesAPI.Services
             );
         }
 
-        public GameLibraryResponse? UpdateGameLibrary(int gameId, int libraryId, UpdateGameLibraryRequest request)
+        public async Task<bool> UpdateGameLibraryAsync(int gameId, int libraryId, UpdateGameLibraryRequest request)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
+            var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
-            if (gameLibrary == null) return null;
+            if (gameLibrary == null) return false;
 
             gameLibrary.IsFavourite = request.IsFavourite;
             gameLibrary.HoursPlayed = request.HoursPlayed;
             gameLibrary.GameId = gameId;
             gameLibrary.LibraryId = libraryId;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GameLibraryResponse
-            (
-                gameLibrary.IsFavourite,
-                gameLibrary.HoursPlayed,
-                gameLibrary.GameId,
-                gameLibrary.LibraryId
-            );
+            return true;
         }
 
-        public GameLibraryResponse? DeleteGameLibrary(int gameId, int libraryId)
+        public async Task<bool> DeleteGameLibraryAsync(int gameId, int libraryId)
         {
-            var gameLibrary = _context.GameLibraries.FirstOrDefault(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
+            var gameLibrary = await _context.GameLibraries.FirstOrDefaultAsync(gl => gl.GameId == gameId && gl.LibraryId == libraryId);
 
-            if (gameLibrary == null) return null;
+            if (gameLibrary == null) return false;
 
             _context.GameLibraries.Remove(gameLibrary);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GameLibraryResponse
-            (
-                gameLibrary.IsFavourite,
-                gameLibrary.HoursPlayed,
-                gameLibrary.GameId,
-                gameLibrary.LibraryId
-            );
+            return true;
         }
     }
 }

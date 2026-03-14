@@ -19,25 +19,25 @@ namespace GamesAPI.Controllers
 
         [HttpPost]
 
-        public ActionResult<LibraryResponse> CreateLibraryRequest([FromBody] CreateLibraryRequest request)
+        public async Task<ActionResult<LibraryResponse>> CreateLibraryRequest([FromBody] CreateLibraryRequest request)
         {
-            var response = _libraryService.CreateLibrary(request);
+            var response = await _libraryService.CreateLibraryAsync(request);
                        
             return CreatedAtAction(nameof(GetLibraryById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public ActionResult<LibraryResponse> GetLibraries()
+        public async Task<ActionResult<LibraryResponse>> GetLibraries()
         {
-            var responseList = _libraryService.GetLibraries();
+            var responseList = await _libraryService.GetLibrariesAsync();
 
             return Ok(responseList);
         }
 
         [HttpGet("{id}", Name = "GetLibraryById")]
-        public ActionResult<LibraryResponse> GetLibraryById(int id)
+        public async Task<ActionResult<LibraryResponse>> GetLibraryById(int id)
         {
-            var library = _libraryService.GetLibraryById(id);
+            var library = await _libraryService.GetLibraryByIdAsync(id);
 
             if (library == null)
             {
@@ -49,11 +49,11 @@ namespace GamesAPI.Controllers
 
         [HttpPut("{id}")]
 
-        public ActionResult<LibraryResponse> UpdateLibrary(int id, [FromBody] UpdateLibraryRequest request)
+        public async Task<ActionResult<LibraryResponse>> UpdateLibrary(int id, [FromBody] UpdateLibraryRequest request)
         {
-            var response = _libraryService.UpdateLibrary(id, request);
+            var response = await _libraryService.UpdateLibraryAsync(id, request);
 
-            if (response == null)
+            if (response == false)
             {
                 return NotFound();
             }
@@ -62,11 +62,11 @@ namespace GamesAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<LibraryResponse> DeleteLibrary(int id)
+        public async Task<ActionResult<LibraryResponse>> DeleteLibrary(int id)
         {
-            var library = _libraryService.DeleteLibrary(id);
+            var library = await _libraryService.DeleteLibraryAsync(id);
 
-            if (library == null)
+            if (library == false)
             {
                 return NotFound();
             }

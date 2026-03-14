@@ -2,6 +2,7 @@
 using GamesAPI.Models.Enums;
 using GamesAPI.DTOs;
 using GamesAPI.Data;
+using Microsoft.EntityFrameworkCore;    
 
 namespace GamesAPI.Services
 {
@@ -14,9 +15,10 @@ namespace GamesAPI.Services
             _context = context;
         }
 
-        public IEnumerable<GameResponse> GetGames()
+        public async Task<IEnumerable<GameResponse>> GetGamesAsync()
         {
-            return _context.Games.Select(g => new GameResponse
+            await Task.Delay(50);
+            return await _context.Games.Select(g => new GameResponse
             (
                 g.Id,
                 g.Name,
@@ -28,15 +30,17 @@ namespace GamesAPI.Services
                 g.PlayingType,
                 g.GamePlatform,
                 g.GenreId
-            )).ToList();
+            )).ToListAsync();
         }
 
-        public GameResponse? GetGameById(int id)
+        public async Task<GameResponse?> GetGameByIdAsync(int id)
         {
-            var game = _context.Games.FirstOrDefault(g => g.Id == id);
+            await Task.Delay(50);
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
 
             if (game == null) return null;
 
+            
             return new GameResponse
             (
                 game.Id,
@@ -52,8 +56,9 @@ namespace GamesAPI.Services
             );
         }
 
-        public GameResponse CreateGame(CreateGameRequest request)
+        public async Task<GameResponse> CreateGameAsync(CreateGameRequest request)
         {
+            await Task.Delay(20);
             var newGame = new Game
             {
                 Name = request.Name,
@@ -66,7 +71,7 @@ namespace GamesAPI.Services
             };
 
             _context.Games.Add(newGame);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new GameResponse
             (
@@ -83,11 +88,12 @@ namespace GamesAPI.Services
             );
         }
 
-        public GameResponse? UpdateGame(int id, UpdateGameRequest request)
+        public async Task<bool> UpdateGameAsync(int id, UpdateGameRequest request)
         {
-            var game = _context.Games.FirstOrDefault(g => g.Id == id);
+            await Task.Delay(20);
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (game == null) return null;
+            if (game == null) return false;
 
             game.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : game.Name;
             game.Publisher = !string.IsNullOrEmpty(request.Publisher) ? request.Publisher : game.Publisher;
@@ -98,45 +104,22 @@ namespace GamesAPI.Services
             game.GenreId = request.GenreId != default ? request.GenreId : game.GenreId;
             game.UpdatedAt = DateTime.UtcNow;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GameResponse
-            (
-                game.Id,
-                game.Name,
-                game.ReleaseDate,
-                game.Publisher,
-                game.Price,
-                game.CreatedAt,
-                game.UpdatedAt,
-                game.PlayingType,
-                game.GamePlatform,
-                game.GenreId
-            );
+            return true;
         }
 
-        public GameResponse? DeleteGame(int id)
+        public async Task<bool> DeleteGameAsync(int id)
         {
-            var game = _context.Games.FirstOrDefault(g => g.Id == id);
+            await Task.Delay(20);
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (game == null) return null;
+            if (game == null) return false;
 
             _context.Games.Remove(game);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return new GameResponse
-            (
-                game.Id,
-                game.Name,
-                game.ReleaseDate,
-                game.Publisher,
-                game.Price,
-                game.CreatedAt,
-                game.UpdatedAt,
-                game.PlayingType,
-                game.GamePlatform,
-                game.GenreId
-            );
+            return true;
         }
     }
 }

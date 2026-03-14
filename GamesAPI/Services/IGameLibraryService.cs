@@ -4,10 +4,10 @@ namespace GamesAPI.Services
 {
     public interface IGameLibraryService
     {
-        IEnumerable<GameLibraryResponse> GetGameLibraries();
-        GameLibraryResponse? GetGameLibraryById(int gameId, int libraryId);
-        GameLibraryResponse CreateGameLibrary(CreateGameLibraryRequest request);
-        GameLibraryResponse? UpdateGameLibrary(int gameId, int libraryId, UpdateGameLibraryRequest request);   
-        GameLibraryResponse? DeleteGameLibrary(int gameId, int libraryId);
+        Task<IEnumerable<GameLibraryResponse>> GetGameLibrariesAsync();
+        Task<GameLibraryResponse?> GetGameLibraryByIdAsync(int gameId, int libraryId);
+        Task<GameLibraryResponse> CreateGameLibraryAsync(CreateGameLibraryRequest request);
+        Task<bool> UpdateGameLibraryAsync(int gameId, int libraryId, UpdateGameLibraryRequest request);   
+        Task<bool> DeleteGameLibraryAsync(int gameId, int libraryId);
     }
 }
