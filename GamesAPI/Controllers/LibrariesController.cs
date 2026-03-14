@@ -49,11 +49,6 @@ namespace GamesAPI.Controllers
         {
             var library = await _libraryService.GetLibraryByIdAsync(id);
 
-            if (library == null)
-            {
-                return NotFound();
-            }
-
             return Ok(library);
         }
 
@@ -63,11 +58,6 @@ namespace GamesAPI.Controllers
         {
             var response = await _libraryService.UpdateLibraryAsync(id, request);
 
-            if (response == false)
-            {
-                return NotFound();
-            }
-
             return NoContent();
         }
 
@@ -75,11 +65,6 @@ namespace GamesAPI.Controllers
         public async Task<ActionResult<LibraryResponse>> DeleteLibrary(int id)
         {
             var library = await _libraryService.DeleteLibraryAsync(id);
-
-            if (library == false)
-            {
-                return NotFound();
-            }
 
             return NoContent();
         }

@@ -1,5 +1,6 @@
 ﻿using GamesAPI.DTOs;
 using GamesAPI.Services;
+using GamesAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamesAPI.Controllers
@@ -50,11 +51,6 @@ namespace GamesAPI.Controllers
         {
             var response = await _gameService.GetGameByIdAsync(id);
 
-            if (response == null)
-            {
-                return NotFound();
-            }
-
             return Ok(response);
         }
 
@@ -64,11 +60,6 @@ namespace GamesAPI.Controllers
         {
             var response = await _gameService.UpdateGameAsync(id, request);
 
-            if (response == false)
-            {
-                return NotFound();
-            }
-
             return NoContent();
         }
 
@@ -77,11 +68,6 @@ namespace GamesAPI.Controllers
         public async Task<ActionResult<GameResponse>> DeleteGame(int id)
         {
             var response = await _gameService.DeleteGameAsync(id);
-
-            if (response == false)
-            {
-                return NotFound();
-            }
 
             return NoContent();
         }

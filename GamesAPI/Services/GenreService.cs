@@ -1,6 +1,7 @@
 ﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
+using GamesAPI.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Services
@@ -50,7 +51,10 @@ namespace GamesAPI.Services
             await Task.Delay(20);
             var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (genre == null) return null;
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
 
             return new GenreResponse
             (
@@ -81,7 +85,10 @@ namespace GamesAPI.Services
         {
             var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (genre == null) return false;
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
 
             genre.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : genre.Name;
 
@@ -94,7 +101,10 @@ namespace GamesAPI.Services
         {
             var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (genre == null) return false;
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
 
             _context.Genres.Remove(genre);
             await _context.SaveChangesAsync();

@@ -49,12 +49,6 @@ namespace GamesAPI.Controllers
         {
             var genre = await _genreService.GetGenreByIdAsync(id);
 
-            if (genre == null)
-            {
-                return NotFound();
-            }
-
-
             return Ok(genre);
         }
 
@@ -63,11 +57,6 @@ namespace GamesAPI.Controllers
         {
             var response = await _genreService.UpdateGenreAsync(id, request);
 
-            if (response == false)
-            {
-                return NotFound();
-            }
-
             return NoContent();
         }
 
@@ -75,11 +64,6 @@ namespace GamesAPI.Controllers
         public async Task<ActionResult<GenreResponse>> DeleteGenre(int id)
         {
             var response = await _genreService.DeleteGenreAsync(id);
-
-            if (response == false)
-            {
-                return NotFound();
-            }
 
             return NoContent();
         }

@@ -4,6 +4,7 @@ using GamesAPI.DTOs;
 using GamesAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
+using GamesAPI.Exceptions;
 
 namespace GamesAPI.Services
 {
@@ -91,7 +92,10 @@ namespace GamesAPI.Services
                 }
                 );           
 
-            if (game == null) return null;
+            if (game == null)
+            {
+                throw new NotFoundException($"Game with ID {id} not found in the database.");
+            }
 
             
             return new GameResponse
@@ -146,7 +150,10 @@ namespace GamesAPI.Services
             await Task.Delay(20);
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (game == null) return false;
+            if (game == null)
+            { 
+                throw new NotFoundException($"Game with ID {id} not found.");
+            }
 
             game.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : game.Name;
             game.Publisher = !string.IsNullOrEmpty(request.Publisher) ? request.Publisher : game.Publisher;
@@ -168,7 +175,10 @@ namespace GamesAPI.Services
             await Task.Delay(20);
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
 
-            if (game == null) return false;
+            if (game == null)
+            {
+                throw new NotFoundException($"Game with ID {id} not found.");
+            }
 
             _context.Games.Remove(game);
             await _cache.RemoveAsync($"game_{id}");
