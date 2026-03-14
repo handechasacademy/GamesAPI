@@ -29,6 +29,30 @@ namespace GamesAPI.Services
             )).ToListAsync();
         }
 
+        public async Task<PagedResponse<LibraryResponse>> GetPagedLibrariesAsync(int page, int pageSize)
+        {
+            await Task.Delay(20);
+
+            var totalCount = await _context.Libraries.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Libraries
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(l => new LibraryResponse
+                (
+                    l.Id,
+                    l.Name,
+                    l.Description,
+                    l.CreatedAt,
+                    l.UpdatedAt
+                )).ToListAsync();
+
+            var meta = new PaginationMeta(page, pageSize, totalPages, totalCount, page < totalPages, page > 1);
+
+            return new PagedResponse<LibraryResponse>(items, meta);
+        }
+
         public async Task<LibraryResponse?> GetLibraryByIdAsync(int id)
         {
             var cacheKey = $"library_{id}";
