@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using GamesAPI.Data;
+﻿using GamesAPI.Data;
 using GamesAPI.DTOs;
 using GamesAPI.Models;
 using GamesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace GamesAPI.Controllers
@@ -18,6 +19,7 @@ namespace GamesAPI.Controllers
             _gameLibraryService = gameLibraryService;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<GameLibraryResponse>> CreateGameLibraryRequest([FromBody] CreateGameLibraryRequest request)
         {
@@ -53,6 +55,7 @@ namespace GamesAPI.Controllers
             return Ok(gameLibrary);
         }
 
+        [Authorize]
         [HttpPut("{gameId}/{libraryId}")]
         public async Task<ActionResult<GameLibraryResponse>> UpdateGameLibrary(int gameId, int libraryId, [FromBody] UpdateGameLibraryRequest request)
         {
@@ -61,6 +64,7 @@ namespace GamesAPI.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{gameId}/{libraryId}")]
         public async Task<ActionResult<GameLibraryResponse>> DeleteGameLibrary(int gameId, int libraryId)
         {
