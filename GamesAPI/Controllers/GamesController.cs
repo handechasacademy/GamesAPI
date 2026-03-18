@@ -1,6 +1,7 @@
 ﻿using GamesAPI.DTOs;
-using GamesAPI.Services;
 using GamesAPI.Exceptions;
+using GamesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamesAPI.Controllers
@@ -15,6 +16,7 @@ namespace GamesAPI.Controllers
             _gameService = gameService;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<GameResponse>> CreateGame([FromBody] CreateGameRequest request)
         {
@@ -54,6 +56,7 @@ namespace GamesAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
 
         public async Task<ActionResult<GameResponse>> UpdateGame(int id, [FromBody] UpdateGameRequest request)
@@ -63,6 +66,7 @@ namespace GamesAPI.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
 
         public async Task<ActionResult<GameResponse>> DeleteGame(int id)

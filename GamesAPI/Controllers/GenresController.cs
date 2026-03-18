@@ -2,6 +2,7 @@
 using GamesAPI.DTOs;
 using GamesAPI.Models;
 using GamesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ namespace GamesAPI.Controllers
             _genreService = genreService;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<GenreResponse>> CreateGenreRequest([FromBody] CreateGenreRequest request)
         {
@@ -52,6 +54,7 @@ namespace GamesAPI.Controllers
             return Ok(genre);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<GenreResponse>> UpdateGenre(int id, [FromBody] UpdateGenreRequest request)
         {
@@ -60,6 +63,7 @@ namespace GamesAPI.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult<GenreResponse>> DeleteGenre(int id)
         {
