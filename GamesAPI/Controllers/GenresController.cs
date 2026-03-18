@@ -4,12 +4,14 @@ using GamesAPI.Models;
 using GamesAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Controllers
 {
     [Route("api/genres")]
     [ApiController]
+    [EnableRateLimiting("fixed")]
     public class GenresController : ControllerBase
     {
         private readonly IGenreService _genreService;
