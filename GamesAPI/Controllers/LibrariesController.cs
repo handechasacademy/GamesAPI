@@ -4,12 +4,14 @@ using GamesAPI.Models;
 using GamesAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamesAPI.Controllers
 {
     [Route("api/libraries")]
     [ApiController]
+    [EnableRateLimiting("fixed")]
     public class LibrariesController : ControllerBase
     {
         private readonly ILibraryService _libraryService;
