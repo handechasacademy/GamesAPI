@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using GamesAPI.Clients;
 using  GamesAPI.Data;
 using GamesAPI.Exceptions;
 using GamesAPI.Services;
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
+builder.Services.AddHttpClient<RawgClient>();
 
 builder.Services.AddProblemDetails(options => {
     options.CustomizeProblemDetails = context =>
