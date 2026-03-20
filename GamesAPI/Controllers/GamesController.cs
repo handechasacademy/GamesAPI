@@ -1,0 +1,81 @@
+﻿using GamesAPI.DTOs;
+using GamesAPI.Exceptions;
+using GamesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace GamesAPI.Controllers
+{
+    [Route("api/games")]
+    [ApiController]
+    [EnableRateLimiting("fixed")]
+    public class GamesController : ControllerBase
+    {
+        private readonly IGameService _gameService;
+        public GamesController(IGameService gameService)
+        {
+            _gameService = gameService;
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<GameResponse>> CreateGame([FromBody] CreateGameRequest request)
+        {
+
+            var response = await _gameService.CreateGameAsync(request);
+
+            return CreatedAtAction(nameof(GetGameById), new { id = response.Id }, response);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GameResponse>>> GetGames()
+        {
+            var games = await _gameService.GetGamesAsync();
+
+            return Ok(games);
+        }
+
+        [HttpGet("paged")]
+
+        public async Task<ActionResult<PagedResponse<GameResponse>>> GetPagedGames(
+            [AsParameters] GameFilter filter,
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 20
+            )
+        {
+            pageSize =Math.Clamp(pageSize, 1, 100);
+
+            var response = await _gameService.GetPagedGamesAsync(page, pageSize, filter);
+            return Ok(response);
+        }
+
+        [HttpGet("{id}", Name = "GetGameById")]
+        public async Task<ActionResult<GameResponse>> GetGameById(int id)
+        {
+            var response = await _gameService.GetGameByIdAsync(id);
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+
+        public async Task<ActionResult<GameResponse>> UpdateGame(int id, [FromBody] UpdateGameRequest request)
+        {
+            var response = await _gameService.UpdateGameAsync(id, request);
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+
+        public async Task<ActionResult<GameResponse>> DeleteGame(int id)
+        {
+            var response = await _gameService.DeleteGameAsync(id);
+
+            return NoContent();
+        }
+    }
+}

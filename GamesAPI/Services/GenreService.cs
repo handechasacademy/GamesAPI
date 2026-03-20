@@ -1,0 +1,117 @@
+﻿using GamesAPI.Data;
+using GamesAPI.DTOs;
+using GamesAPI.Models;
+using GamesAPI.Exceptions;
+using Microsoft.EntityFrameworkCore;
+
+namespace GamesAPI.Services
+{
+    public class GenreService : IGenreService
+    {
+        private readonly AppDbContext _context;
+        public GenreService(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<GenreResponse>> GetGenresAsync()
+        {
+            await Task.Delay(20);
+            return await _context.Genres.Select(g => new GenreResponse
+            (
+                g.Id,
+                g.Name
+            )).ToListAsync();
+        }
+
+        public async Task<PagedResponse<GenreResponse>> GetPagedGenresAsync(int page, int pageSize)
+        {
+            await Task.Delay(20);
+
+            var totalCount = await _context.Genres.CountAsync();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Genres
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(g => new GenreResponse
+                (
+                    g.Id,
+                    g.Name
+                )).ToListAsync();
+
+            var meta = new PaginationMeta(page, pageSize, totalPages, totalCount, page < totalPages, page > 1);
+
+            return new PagedResponse<GenreResponse>(items, meta);
+        }
+
+        public async Task<GenreResponse?> GetGenreByIdAsync(int id)
+        {
+            await Task.Delay(20);
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
+
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
+
+            return new GenreResponse
+            (
+                genre.Id,
+                genre.Name
+            );
+        }
+
+        public async Task<GenreResponse> CreateGenreAsync(CreateGenreRequest request)
+        {
+            await Task.Delay(20);
+            var newGenre = new Genre
+            {
+                Name = request.Name
+            };
+
+            _context.Genres.Add(newGenre);
+            await _context.SaveChangesAsync();
+
+            return new GenreResponse
+            (
+                newGenre.Id,
+                newGenre.Name
+            );
+        }
+
+        public async Task<bool> UpdateGenreAsync(int id, UpdateGenreRequest request)
+        {
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
+
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
+
+            genre.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : genre.Name;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeleteGenreAsync(int id)
+        {
+            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
+
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre with ID {id} not found.");
+            }
+
+            _context.Genres.Remove(genre);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+
+    }
+}
