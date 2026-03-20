@@ -107,7 +107,7 @@ Everything sensitive (API keys, passwords, JWT key) is stored in User Secrets as
 
 ---
 
-## Performance — Cache Miss vs Cache Hit
+## Performance - Cache Miss vs Cache Hit
 
 I added HybridCache to the `GET /api/games/{id}` and `GET /api/libraries/{id}` endpoints to reduce unnecessary database calls.
 
